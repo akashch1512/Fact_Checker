@@ -1,7 +1,6 @@
 import os
 from dotenv import load_dotenv
 import google.generativeai as genai
-
 load_dotenv()
 
 def query_gemini(claim: str, constraint: str = "verdict_and_short_reason") -> str:
@@ -36,7 +35,7 @@ def query_gemini(claim: str, constraint: str = "verdict_and_short_reason") -> st
             "Reply with 'True' or 'False' at the start and give a one-sentence reason (max 15 words)."
         )
 
-    genai.configure(api_key=r"AIzaSyDVW4vPFJ7frbYhklDgKoaE9-3CEka5Hpg")
+    genai.configure(api_key=os.getenv("GEMINI_API_KEY"))  # Or set in env
     model = genai.GenerativeModel(model_name="gemini-1.5-flash")
 
     try:

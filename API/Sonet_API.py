@@ -38,7 +38,7 @@ def query_perplexity(claim: str, constraint: str = "verdict_and_short_reason") -
         )
 
     url = "https://api.perplexity.ai/chat/completions"
-    api_key = os.getenv("SONET_API_KEY", "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")  # Or set in env
+    api_key = os.getenv("SONET_API_KEY")  # Or set in env
     headers = {
         "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json"
