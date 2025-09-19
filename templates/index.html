@@ -4,359 +4,291 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Fact Checker</title>
-    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23007bff'%3E%3Cpath d='M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-1 15L6 11l1.41-1.41L11 13.17l4.59-4.59L17 10l-6 6z'/%3E%3C/svg%3E" type="image/svg+xml">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2300FFFF'%3E%3Cpath d='M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-1 15L6 11l1.41-1.41L11 13.17l4.59-4.59L17 10l-6 6z'/%3E%3C/svg%3E" type="image/svg+xml">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        /* Light Mode Variables (Default) */
         :root {
-            --bg-primary: #f8f9fa;
-            --bg-secondary: #ffffff;
-            --text-primary: #212529;
-            --text-secondary: #6c757d;
-            --heading-color: #007bff;
-            --border-color: #dee2e6;
-            --input-bg: #ffffff;
-            --input-border: #ced4da;
-            --input-focus-border: #80bdff;
-            --input-focus-shadow: rgba(0, 123, 255, 0.25);
-            --button-bg: #007bff;
-            --button-hover-bg: #0056b3;
-            --result-bg: #e9ecef;
-            --result-border: #ced4da;
-            --result-text: #343a40;
-            --toggle-bg: #adb5bd;
-            --toggle-circle-bg: white;
-            --shadow-light: rgba(0, 0, 0, 0.08);
-            --shadow-dark: rgba(0, 0, 0, 0.2);
-        }
-
-        /* Dark Mode Variables */
-        body.dark-mode {
-            --bg-primary: #1a1a1a;
-            --bg-secondary: #2c2c2c;
-            --text-primary: #e0e0e0;
-            --text-secondary: #a0aec0;
-            --heading-color: #6366f1;
-            --border-color: #4a5568;
-            --input-bg: #3d3d3d;
-            --input-border: #555555;
-            --input-focus-border: #8b5cf6;
-            --input-focus-shadow: rgba(139, 92, 246, 0.35);
-            --button-bg: #6366f1;
-            --button-hover-bg: #4f46e5;
-            --result-bg: #1e1e2e;
-            --result-border: #3d3d4d;
-            --result-text: #e0e0e0;
-            --toggle-bg: #555;
-            --toggle-circle-bg: #f1f1f1;
-            --shadow-light: rgba(0, 0, 0, 0.2);
-            --shadow-dark: rgba(0, 0, 0, 0.4);
+            --color-blue: #007bff;
+            --color-neon-blue: #00FFFF;
+            --color-bg-dark: #0a0a1a;
+            --color-text-light: #e0e0ff;
+            --color-card-bg: rgba(255, 255, 255, 0.08);
+            --color-input-bg: rgba(0, 0, 0, 0.2);
+            --color-border-subtle: rgba(255, 255, 255, 0.2);
+            --color-shadow-light: rgba(0, 0, 0, 0.1);
+            --color-shadow-card: rgba(0, 0, 0, 0.5);
+            --font-family-main: 'Roboto Mono', monospace;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: var(--font-family-main);
             margin: 0;
-            padding: 20px;
-            line-height: 1.6;
-            background-color: var(--bg-primary);
-            color: var(--text-primary);
+            padding: 0;
+            color: var(--color-text-light);
             display: flex;
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
-            box-sizing: border-box;
-            transition: background-color 0.3s ease, color 0.3s ease;
+            position: relative;
+            background-color: var(--color-bg-dark);
+            /* Allow scrolling on the body */
+            overflow-y: auto;
         }
 
-        .container {
-            max-width: 700px;
+        .background-gif {
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
-            background: var(--bg-secondary);
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 8px 25px var(--shadow-light);
-            box-sizing: border-box;
-            transition: background-color 0.3s ease, box-shadow 0.3s ease;
-            position: relative; /* For theme toggle button */
-            margin-top: 30px; /* Space from top */
-            margin-bottom: 30px; /* Space from bottom */
+            height: 100%;
+            object-fit: cover;
+            z-index: -2;
+            filter: blur(5px) brightness(0.7);
+        }
+        
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 10, 26, 0.8);
+            z-index: -1;
         }
 
-        h1 {
-            text-align: center;
-            font-weight: 700;
-            color: var(--heading-color);
-            margin-bottom: 30px;
-            font-size: 2.2em;
-            transition: color 0.3s ease;
-        }
-
-        form {
+        .main-content {
             display: flex;
             flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            width: 100%;
+            max-width: 900px;
+            box-sizing: border-box;
+            z-index: 1;
+            padding-top: 100px; 
+            padding-bottom: 100px; 
+        }
+
+        .glass-card {
+            backdrop-filter: blur(15px);
+            background-color: var(--color-card-bg);
+            border: 1px solid var(--color-border-subtle);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 15px 30px var(--color-shadow-card);
+            text-align: center;
+            width: 100%;
+            max-width: 600px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            animation: fadeIn 1s ease-in-out;
+            margin-top: 50px; /* Adjust top margin for better spacing on scroll */
+            margin-bottom: 50px;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 255, 255, 0.2), 0 15px 30px var(--color-shadow-card);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .headline {
+            font-size: 3em;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            color: var(--color-neon-blue);
+            /* Subtler glow */
+            text-shadow: 0 0 5px var(--color-neon-blue), 0 0 10px var(--color-neon-blue);
+        }
+
+        .input-group {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             gap: 15px;
-            margin-bottom: 30px;
         }
 
-        label {
-            font-weight: 600;
-            color: var(--text-primary);
-            transition: color 0.3s ease;
-        }
-
-        input[type="text"] {
+        .input-box {
             width: 100%;
-            padding: 12px 15px;
-            border: 1px solid var(--input-border);
-            border-radius: 8px;
-            font-size: 1rem;
-            background-color: var(--input-bg);
-            color: var(--text-primary);
-            box-sizing: border-box;
-            transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.3s ease, color 0.3s ease;
-        }
-        input[type="text"]::placeholder {
-            color: var(--text-secondary);
-            opacity: 0.7;
-        }
-        input[type="text"]:focus {
-            outline: none;
-            border-color: var(--input-focus-border);
-            box-shadow: 0 0 0 4px var(--input-focus-shadow);
-        }
-
-        button[type="submit"] {
-            background: var(--button-bg);
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 8px;
-            cursor: pointer;
+            max-width: 500px;
+            padding: 15px 25px;
+            background-color: var(--color-input-bg);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50px;
             font-size: 1.1rem;
-            font-weight: 600;
-            transition: background 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
+            color: var(--color-text-light);
+            transition: all 0.3s ease;
+        }
+
+        .input-box:hover {
+            border-color: var(--color-neon-blue);
+            box-shadow: 0 0 10px var(--color-neon-blue);
+        }
+
+        .input-box:focus {
+            outline: none;
+            border-color: var(--color-neon-blue);
+            background-color: rgba(0, 0, 0, 0.4);
+            box-shadow: 0 0 15px var(--color-neon-blue);
+        }
+
+        .input-box::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .submit-button {
             width: 100%;
-            box-sizing: border-box;
-            box-shadow: 0 4px 10px var(--shadow-light);
-        }
-        button[type="submit"]:hover {
-            background: var(--button-hover-bg);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 15px var(--shadow-dark);
-        }
-        button[type="submit"]:active {
-            transform: translateY(0);
-            box-shadow: 0 2px 5px var(--shadow-light);
-        }
-
-        .results-section {
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid var(--border-color);
-            transition: border-color 0.3s ease;
-        }
-
-        .result-box {
-            background-color: var(--result-bg);
-            border: 1px solid var(--result-border);
-            border-radius: 8px;
+            max-width: 300px;
             padding: 15px;
-            margin-bottom: 15px;
-            box-shadow: 0 2px 8px var(--shadow-light);
-            transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
-        }
-        .result-box:last-child {
-            margin-bottom: 0;
-        }
-
-        .result-box h3 {
-            color: var(--heading-color);
-            font-size: 1.2em;
-            margin-top: 0;
-            margin-bottom: 10px;
-            transition: color 0.3s ease;
-        }
-
-        .result-box p {
-            color: var(--result-text);
-            font-size: 0.95em;
-            margin-bottom: 0;
-            transition: color 0.3s ease;
-        }
-
-        /* Theme Toggle Button (Slider Style) */
-        #theme-toggle {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            width: 50px;
-            height: 26px;
-            background: var(--toggle-bg);
-            border-radius: 13px;
-            cursor: pointer;
             border: none;
-            box-shadow: 0 2px 5px var(--shadow-light);
-            transition: background 0.3s ease, box-shadow 0.3s ease;
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            appearance: none;
-            padding: 0;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--color-bg-dark);
+            cursor: pointer;
+            position: relative;
+            background: linear-gradient(45deg, #007bff, #00FFFF, #8a2be2);
+            background-size: 200% 200%;
+            transition: all 0.4s ease;
+            animation: gradient-shift 5s linear infinite;
         }
 
-        .theme-icon {
-            width: 22px;
-            height: 22px;
-            background: var(--toggle-circle-bg);
-            border-radius: 50%;
-            position: absolute;
-            top: 2px;
-            left: 2px;
-            transition: left 0.3s ease, background 0.3s ease;
-            box-shadow: 0 1px 3px var(--shadow-light);
+        .submit-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px var(--color-neon-blue), 0 0 30px #8a2be2;
         }
 
-        body.dark-mode #theme-toggle {
-            background: var(--toggle-bg);
+        .submit-button:active {
+            transform: scale(1);
         }
 
-        body.dark-mode .theme-icon {
-            left: 26px;
-            background: var(--toggle-circle-bg);
+        @keyframes gradient-shift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .footer {
+            width: 100%;
+            text-align: center;
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.5);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            padding: 20px 0;
+            z-index: 10;
         }
 
         /* Responsive adjustments */
-        @media (max-width: 600px) {
-            body {
-                padding: 15px;
+        @media (max-width: 768px) {
+            .glass-card {
+                padding: 30px;
             }
-            .container {
-                padding: 20px;
-                margin-top: 20px;
-                margin-bottom: 20px;
+            .headline {
+                font-size: 2.5em;
             }
-            h1 {
-                font-size: 1.8em;
-                margin-bottom: 25px;
-            }
-            form {
-                gap: 12px;
-                margin-bottom: 25px;
-            }
-            input[type="text"], button[type="submit"] {
-                padding: 10px 15px;
+            .input-box {
+                padding: 12px 20px;
                 font-size: 1rem;
             }
-            .result-box {
-                padding: 12px;
-                margin-bottom: 10px;
-            }
-            .result-box h3 {
-                font-size: 1.1em;
-            }
-            .result-box p {
-                font-size: 0.9em;
-            }
-            #theme-toggle {
-                top: 15px;
-                right: 15px;
-                width: 45px;
-                height: 22px;
-                border-radius: 11px;
-            }
-            .theme-icon {
-                width: 18px;
-                height: 18px;
-                top: 2px;
-                left: 2px;
-            }
-            body.dark-mode .theme-icon {
-                left: 25px;
+            .submit-button {
+                font-size: 1.1rem;
             }
         }
+
+        @media (max-width: 480px) {
+            .glass-card {
+                padding: 20px;
+                margin: 0 10px;
+            }
+            .headline {
+                font-size: 2em;
+            }
+        }
+
+        .result-box {
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: left;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease;
+        }
+
+        .result-box:hover {
+            transform: translateY(-3px);
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .result-box h3 {
+            color: var(--color-neon-blue);
+            font-size: 1.2rem;
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+
+        .result-box p {
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- Dark Mode Toggle Button -->
-        <button id="theme-toggle">
-            <span class="theme-icon"></span>
-        </button>
+    <img src="https://buffer.com/library/content/images/library/wp-content/uploads/2016/06/giphy.gif" class="background-gif" alt="Animated Background">
+    <div class="overlay"></div>
 
-        <h1>AI Fact Checker</h1>
-        
-        <form method="POST" action="{{ url_for('handle_form') }}">
-            <label for="question_input">Enter your question:</label>
-            <input type="text" id="question_input" name="question_input" 
-                   placeholder="e.g., Is the sky blue?" 
-                   value="{{ question if question else '' }}" required>
-            
-            <button type="submit">Check Facts</button>
-        </form>
+    <div class="main-content">
+        <div class="glass-card">
+            <h1 class="headline">AI Fact Checker</h1>
+            <form class="input-group" method="POST" action="{{ url_for('handle_form') }}">
+                <input type="text" id="question_input" name="question_input" 
+                       placeholder="e.g., Is the sky blue?" 
+                       value="{{ question if question else '' }}" required class="input-box">
+                
+                <button type="submit" class="submit-button">
+                    Check Facts
+                </button>
+            </form>
+        </div>
 
         {% if gemini_says or sonet_says %}
-            <div class="results-section">
-                <h2>Fact Check Results</h2>
-                {% if question %}
-                    <div class="result-box">
-                        <h3>Your Question:</h3>
-                        <p>{{ question }}</p>
-                    </div>
-                {% endif %}
-
-                <div class="result-box">
-                    <h3>Gemini Says:</h3>
-                    <p>{{ gemini_says }}</p>
-                </div>
-
-                <div class="result-box">
-                    <h3>Sonet Says:</h3>
-                    <p>{{ sonet_says }}</p>
-                </div>
+        <div class="glass-card results-card">
+            <h2 class="headline" style="font-size: 2em; margin-bottom: 20px; text-shadow: none;">Results</h2>
+            {% if question %}
+            <div class="result-box">
+                <h3>Your Question:</h3>
+                <p>{{ question }}</p>
             </div>
+            {% endif %}
+
+            <div class="result-box">
+                <h3>Gemini Says:</h3>
+                <p>{{ gemini_says }}</p>
+            </div>
+
+            <div class="result-box">
+                <h3>Sonet Says:</h3>
+                <p>{{ sonet_says }}</p>
+            </div>
+        </div>
         {% endif %}
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const themeToggleButton = document.getElementById('theme-toggle');
-            const prefersDarkMode = window.matchMedia('(prefers-color-scheme: dark)');
+    <footer class="footer">
+        Powered by AI • Truth Matters
+    </footer>
 
-            // Function to set theme
-            function setTheme(mode) {
-                if (mode === 'dark') {
-                    document.body.classList.add('dark-mode');
-                    localStorage.setItem('theme', 'dark');
-                } else {
-                    document.body.classList.remove('dark-mode');
-                    localStorage.setItem('theme', 'light');
-                }
-            }
-
-            // Check saved preference or system preference on load
-            const savedTheme = localStorage.getItem('theme');
-            if (savedTheme) {
-                setTheme(savedTheme);
-            } else if (prefersDarkMode.matches) {
-                setTheme('dark'); // Default to system preference if no saved preference
-            } else {
-                setTheme('light'); // Default to light if no saved preference and system is light
-            }
-
-            // Listen for system theme changes
-            prefersDarkMode.addEventListener('change', (e) => {
-                if (!localStorage.getItem('theme')) { // Only react if user hasn't manually set a preference
-                    setTheme(e.matches ? 'dark' : 'light');
-                }
-            });
-
-            // Toggle theme on button click
-            themeToggleButton.addEventListener('click', function() {
-                if (document.body.classList.contains('dark-mode')) {
-                    setTheme('light');
-                } else {
-                    setTheme('dark');
-                }
-            });
-        });
-    </script>
 </body>
 </html>
